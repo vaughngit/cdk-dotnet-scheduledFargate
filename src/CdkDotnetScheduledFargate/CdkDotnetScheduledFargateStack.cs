@@ -91,6 +91,7 @@ namespace CdkDotnetScheduledFargate
             //     LogGroupName = "/aws/ecs/scheduledTaskApp",
             //     // Optionally, specify log retention. For example, RetentionDays.ONE_YEAR
             //     // Retention = RetentionDays.ONE_YEAR
+            //     LogGroupClass = LogGroupClass.INFREQUENT_ACCESS
             // });
             // Create Execution Role
             var executionRole = new Role(this, $"{serviceName}-ecsAgentTaskExecutionRole", new RoleProps
@@ -155,7 +156,7 @@ namespace CdkDotnetScheduledFargate
                 {
                     //Specify in UTC Time: 
                     //See converter: https://dateful.com/convert/utc 
-                    Minute = "40",
+                    Minute = "00",
                     Hour = "15",
                     Day = "*",
                     Month = "*"
