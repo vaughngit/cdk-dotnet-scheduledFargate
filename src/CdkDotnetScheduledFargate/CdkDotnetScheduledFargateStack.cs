@@ -19,12 +19,11 @@ namespace CdkDotnetScheduledFargate
     public class CdkDotnetScheduledFargateStack : Stack
     {
 
-               // Class-level variable
+        // Class-level variable
         private readonly string serviceName = "ScheduledServiceTasks";
 
         internal CdkDotnetScheduledFargateStack(Construct scope, string id, IStackProps props = null) : base(scope, id, props)
         {
-
             var configText = File.ReadAllText("config.json");
             var options = new JsonSerializerOptions
             {
@@ -70,29 +69,29 @@ namespace CdkDotnetScheduledFargate
                 }
             });
 
-              // Create an ECS Cluster
+            // Create an ECS Cluster
             var cluster = new Cluster(this, "scheduled-task-cluster", new ClusterProps
             {
                 ClusterName = "scheduled-task-cluster",
                 ContainerInsights = true,
                 Vpc = vpc,
-
             });
 
             // Create a Fargate container image
             var image = ContainerImage.FromRegistry("amazonlinux:2");
 
             // Get Log Group
-            var taskLogGroup = LogGroup.FromLogGroupName(this, "import-log-group", "/aws/ecs/scheduledTaskApp");
+           // var taskLogGroup = LogGroup.FromLogGroupName(this, "import-log-group", "/aws/ecs/scheduledTaskApp");
 
             // Create Log Group
-            // var taskLogGroup = new LogGroup(this, "TaskLogGroup", new Amazon.CDK.AWS.Logs.LogGroupProps
-            // {
-            //     LogGroupName = "/aws/ecs/scheduledTaskApp",
-            //     // Optionally, specify log retention. For example, RetentionDays.ONE_YEAR
-            //     // Retention = RetentionDays.ONE_YEAR
-            //     LogGroupClass = LogGroupClass.INFREQUENT_ACCESS
-            // });
+            var taskLogGroup = new LogGroup(this, "TaskLogGroup", new Amazon.CDK.AWS.Logs.LogGroupProps
+            {
+                LogGroupName = "/aws/ecs/scheduledTaskApp",
+                // Optionally, specify log retention. For example, RetentionDays.ONE_YEAR
+                // Retention = RetentionDays.ONE_YEAR
+                LogGroupClass = LogGroupClass.INFREQUENT_ACCESS
+            });
+
             // Create Execution Role
             var executionRole = new Role(this, $"{serviceName}-ecsAgentTaskExecutionRole", new RoleProps
             {
@@ -156,12 +155,16 @@ namespace CdkDotnetScheduledFargate
                 {
                     //Specify in UTC Time: 
                     //See converter: https://dateful.com/convert/utc 
-                    Minute = "00",
-                    Hour = "15",
+                    Minute = "10",
+                    Hour = "18",
                     Day = "*",
                     Month = "*"
                 }),
                 Cluster = cluster,
+                SubnetSelection = new SubnetSelection
+                {
+                    SubnetType = SubnetType.PRIVATE_WITH_EGRESS
+                },
                 PlatformVersion = FargatePlatformVersion.LATEST,
                 ScheduledFargateTaskDefinitionOptions = new ScheduledFargateTaskDefinitionOptions{
                     TaskDefinition = fargateTaskDefinition,
